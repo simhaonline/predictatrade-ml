@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Astrological Bias & Hora Ruler Matrix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #020617;
+      --border: #1f2933;
+      --border-soft: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --gold: #fbbf24;
+      --accent: #38bdf8;
+      --green: #22c55e;
+      --red: #f97373;
+      --radius: 14px;
+      --shadow: 0 20px 40px rgba(0,0,0,0.45);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 5% 0%, #1e293b 0%, transparent 55%),
+        radial-gradient(circle at 100% 100%, #0f172a 0%, #020617 65%);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1650px;
+      background: rgba(15,23,42,0.98);
+      border-radius: 20px;
+      padding: 2.2rem 2.5rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      margin: 0 0 0.4rem;
+      text-align: center;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--gold), #ffffff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 1.9rem;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.1rem;
+      margin-bottom: 1.2rem;
+      padding: 1.1rem 1.3rem;
+      border-radius: 16px;
+      background: radial-gradient(circle at 10% 0%, rgba(56,189,248,0.08), transparent 60%);
+      border: 1px solid var(--border-soft);
+    }
+
+    label span {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #020617;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(251,191,36,0.2);
+    }
+
+    .controls-right {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      border-radius: 999px;
+      border: none;
+      background: var(--gold);
+      color: #020617;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: 0.03em;
+    }
+    button:hover { filter: brightness(1.05); }
+
+    a#downloadCsv {
+      padding: 0.8rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+    a#downloadCsv:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    #status {
+      margin: 0 0 0.8rem;
+      padding: 0.85rem 1.1rem;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      border-left: 4px solid #eab308;
+      background: rgba(234,179,8,0.08);
+      color: var(--gold);
+    }
+    #status.ok {
+      border-left-color: var(--green);
+      color: var(--green);
+      background: rgba(34,197,94,0.08);
+    }
+    #status.error {
+      border-left-color: var(--red);
+      color: #fecaca;
+      background: rgba(248,113,113,0.08);
+    }
+
+    .summary-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-bottom: 0.6rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .summary-pill {
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #020617;
+    }
+
+    .table-wrapper {
+      margin-top: 0.4rem;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: auto;
+      background: #020617;
+      max-height: calc(100vh - 270px);
+    }
+
+    table {
+      width: 100%;
+      min-width: 1300px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    th {
+      background: #020617;
+      padding: 0.75rem 0.7rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.7rem 0.7rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.86rem;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: rgba(148,163,184,0.08);
+    }
+
+    th:nth-child(1),
+    td:nth-child(1) {
+      position: sticky;
+      left: 0;
+      z-index: 6;
+      background: #020617;
+    }
+    th:nth-child(2),
+    td:nth-child(2) {
+      position: sticky;
+      left: 140px;
+      z-index: 6;
+      background: #020617;
+    }
+
+    th:nth-child(1), th:nth-child(2),
+    td:nth-child(1), td:nth-child(2) {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    .rec-buy, .rec-strong-buy {
+      color: var(--green);
+      font-weight: 600;
+    }
+    .rec-sell, .rec-strong-sell {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .bias-bull { color: var(--green); }
+    .bias-strong-bull { color: var(--green); font-weight: 600; }
+    .bias-bear { color: var(--red); }
+    .bias-strong-bear { color: var(--red); font-weight: 600; }
+
+    .score-strong {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .pos-100 {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        padding: 1.6rem 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Astrological Bias &amp; Hora Ruler Matrix</h1>
+    <p class="subtitle">
+      Session-aware astrological bias overview with Hora rulers • multi-timeframe • UTC &amp; client timestamps
+    </p>
+
+    <div class="controls">
+      <label>
+        <span>Date</span>
+        <input type="date" id="dateInput">
+      </label>
+
+      <label>
+        <span>Session</span>
+        <select id="sessionSelect">
+          <option value="all">All Sessions</option>
+          <option value="sydney">Sydney</option>
+          <option value="asia">Asia (Tokyo)</option>
+          <option value="london">London</option>
+          <option value="newyork">New York</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Timeframe</span>
+        <select id="tfSelect">
+          <option value="M1">M1 (1m)</option>
+          <option value="M5">M5 (5m)</option>
+          <option value="M15">M15 (15m)</option>
+          <option value="M30">M30 (30m)</option>
+          <option value="H1" selected>H1 (1h)</option>
+          <option value="H4">H4 (4h)</option>
+          <option value="D1">D1 (Daily)</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Client TZ (MT5)</span>
+        <input type="text" id="clientTzInput" placeholder="e.g. Etc/GMT-2, Europe/London">
+      </label>
+
+      <div class="controls-right">
+        <button id="loadBtn" type="button">Load Bias Report</button>
+        <a id="downloadCsv" href="#" target="_blank">📥 Bias CSV</a>
+      </div>
+    </div>
+
+    <div id="status">Awaiting command…</div>
+    <div class="summary-row" id="summaryRow"></div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Time (Client)</th>
+            <th>Time (UTC)</th>
+            <th>Session</th>
+            <th>TF</th>
+            <th>Hora Ruler</th>
+            <th>Astrological Bias</th>
+            <th>Trade Recommendation</th>
+            <th>Score</th>
+            <th>Position %</th>
+          </tr>
+        </thead>
+        <tbody id="biasBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function toISODateInput(d) {
+      return d.toISOString().slice(0, 10);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var dateInput = document.getElementById("dateInput");
+      if (dateInput) {
+        dateInput.value = toISODateInput(new Date());
+      }
+
+      var loadBtn = document.getElementById("loadBtn");
+      if (loadBtn) {
+        loadBtn.onclick = loadBiasReport;
+      }
+
+      // Initial load
+      loadBiasReport();
+    });
+
+    function loadBiasReport() {
+      var dateInput = document.getElementById("dateInput");
+      var sessionSelect = document.getElementById("sessionSelect");
+      var tfSelect = document.getElementById("tfSelect");
+      var clientTzInput = document.getElementById("clientTzInput");
+
+      var date = dateInput && dateInput.value ? dateInput.value : toISODateInput(new Date());
+      var session = sessionSelect ? sessionSelect.value : "all";
+      var tf = tfSelect ? tfSelect.value : "H1";
+      var clientTz = clientTzInput && clientTzInput.value ? clientTzInput.value : "";
+
+      var status = document.getElementById("status");
+      var tbody = document.getElementById("biasBody");
+      var summaryRow = document.getElementById("summaryRow");
+
+      if (!status || !tbody || !summaryRow) {
+        console.error("DOM not ready");
+        return;
+      }
+
+      tbody.innerHTML = "";
+      summaryRow.innerHTML = "";
+      status.textContent = "Loading astrological bias matrix…";
+      status.classList.remove("ok", "error");
+
+      var url =
+        "/api/reports/" + encodeURIComponent(date) +
+        "?session=" + encodeURIComponent(session) +
+        "&client_tz=" + encodeURIComponent(clientTz) +
+        "&timeframe=" + encodeURIComponent(tf);
+
+      fetch(url)
+        .then(function (res) {
+          if (!res.ok) {
+            throw new Error("HTTP " + res.status);
+          }
+          return res.json();
+        })
+        .then(function (data) {
+          buildTableRows(data, tf);
+          buildSummary(data, tf);
+
+          var sessionsObj = data && data.sessions ? data.sessions : {};
+          var totalRows = 0;
+          Object.keys(sessionsObj).forEach(function (k) {
+            if (sessionsObj[k] && sessionsObj[k].length) {
+              totalRows += sessionsObj[k].length;
+            }
+          });
+
+          var utcNow = new Date().toISOString();
+          var clientNow = new Date().toLocaleString();
+
+          status.textContent =
+            "[OK] " + (data.date || date) +
+            " • TF=" + tf +
+            " • UTC " + utcNow +
+            " • Client " + clientNow +
+            " • Rows " + totalRows;
+          status.classList.add("ok");
+
+          var csvUrl =
+            "/api/reports/" + encodeURIComponent(date) + "/csv" +
+            "?session=" + encodeURIComponent(session) +
+            "&client_tz=" + encodeURIComponent(clientTz) +
+            "&timeframe=" + encodeURIComponent(tf);
+
+          var downloadCsv = document.getElementById("downloadCsv");
+          if (downloadCsv) {
+            downloadCsv.href = csvUrl;
+          }
+        })
+        .catch(function (err) {
+          console.error("loadBiasReport error:", err);
+          status.textContent = "[ERR] " + err.message;
+          status.classList.add("error");
+        });
+    }
+
+    // --- Astrological bias auto-detection ---
+
+    var detectedBiasKey = null;
+    var loggedMissingBiasOnce = false;
+
+    function detectBiasKeyFromRow(row) {
+      if (!row || typeof row !== "object") return null;
+
+      var keys = Object.keys(row);
+      var ignoreKeys = {
+        time: 1,
+        time_client: 1,
+        time_utc: 1,
+        timeframe: 1,
+        session: 1,
+        hora_ruler: 1,
+        hora_lord: 1,
+        trade_recommendation: 1,
+        gold_signal_score: 1,
+        base_score: 1,
+        position_size_percentage: 1,
+        symbol: 1,
+        instrument: 1
+      };
+
+      var planetNames = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
+
+      var bestKey = null;
+      var bestScore = 0;
+
+      for (var i = 0; i < keys.length; i++) {
+        var k = keys[i];
+        if (ignoreKeys[k]) continue;
+
+        var v = row[k];
+        if (typeof v !== "string") continue;
+        var l = v.toLowerCase().trim();
+        if (!l) continue;
+
+        var keyLower = k.toLowerCase();
+
+        // Exclude pure planet names used as Hora ruler
+        if (planetNames.indexOf(l) !== -1 &&
+            (keyLower.indexOf("hora") !== -1 || keyLower.indexOf("ruler") !== -1 || keyLower.indexOf("lord") !== -1)) {
+          continue;
+        }
+
+        var score = 0;
+        if (l.indexOf("bull") !== -1) score += 4;
+        if (l.indexOf("bear") !== -1) score += 4;
+        if (l.indexOf("neutral") !== -1) score += 3;
+        if (l.indexOf("astro") !== -1 || keyLower.indexOf("astro") !== -1) score += 2;
+        if (l.indexOf("bias") !== -1 || keyLower.indexOf("bias") !== -1) score += 2;
+        if (l.indexOf("trend") !== -1 || keyLower.indexOf("trend") !== -1) score += 1;
+        if (l.indexOf("strong") !== -1 || l.indexOf("weak") !== -1) score += 1;
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestKey = k;
+        }
+      }
+
+      if (bestScore >= 3) {
+        return bestKey;
+      }
+      return null;
+    }
+
+    function resolveAstroBias(row) {
+      if (!row) return "";
+
+      // 1) Common explicit keys first
+      var candidateKeys = [
+        "astro_bias",
+        "astroBias",
+        "astrological_bias",
+        "astrologicalBias",
+        "astro_bias_label",
+        "astrological_bias_label",
+        "bias",
+        "bias_label",
+        "bias_text"
+      ];
+
+      if (detectedBiasKey && row[detectedBiasKey] !== undefined && row[detectedBiasKey] !== null) {
+        return String(row[detectedBiasKey]);
+      }
+
+      var value = "";
+      for (var i = 0; i < candidateKeys.length; i++) {
+        var k = candidateKeys[i];
+        if (row[k] !== undefined && row[k] !== null && row[k] !== "") {
+          value = String(row[k]);
+          break;
+        }
+      }
+
+      // 2) Nested object under astro_bias
+      if (!value && typeof row.astro_bias === "object" && row.astro_bias !== null) {
+        var o = row.astro_bias;
+        if (o.label) value = String(o.label);
+        else if (o.summary) value = String(o.summary);
+        else if (o.text) value = String(o.text);
+        else if (o.description) value = String(o.description);
+      }
+
+      // 3) Auto-detect from any string field
+      if (!value) {
+        var autoKey = detectBiasKeyFromRow(row);
+        if (autoKey) {
+          detectedBiasKey = autoKey;
+          value = String(row[autoKey]);
+        }
+      }
+
+      // 4) If still nothing, log once for debugging
+      if (!value && !loggedMissingBiasOnce) {
+        loggedMissingBiasOnce = true;
+        try {
+          console.log("Astro bias field not detected. Available keys:", Object.keys(row));
+          console.log("Sample row:", row);
+        } catch (e) {
+          console.log("Astro bias debug log error:", e);
+        }
+      }
+
+      return value;
+    }
+
+    // --- Table & summary builders ---
+
+    function buildTableRows(data, timeframe) {
+      var tbody = document.getElementById("biasBody");
+      if (!tbody) return;
+
+      var sessionsObj = data && data.sessions ? data.sessions : {};
+      var sessionKeys = Object.keys(sessionsObj);
+
+      sessionKeys.forEach(function (sessKey) {
+        var rows = sessionsObj[sessKey] || [];
+        rows.forEach(function (row) {
+          var tr = document.createElement("tr");
+
+          var biasRaw = resolveAstroBias(row);
+          var biasLower = String(biasRaw).toLowerCase();
+          var recRaw = (row.trade_recommendation || "").toUpperCase();
+
+          var baseScore =
+            row.gold_signal_score !== undefined && row.gold_signal_score !== null
+              ? row.gold_signal_score
+              : (row.base_score !== undefined && row.base_score !== null
+                  ? row.base_score
+                  : 0);
+          var score = parseFloat(baseScore);
+
+          var pos =
+            row.position_size_percentage !== undefined && row.position_size_percentage !== null
+              ? row.position_size_percentage
+              : "";
+
+          var biasClass = "";
+          if (biasLower.indexOf("strong") !== -1 && biasLower.indexOf("bull") !== -1) {
+            biasClass = "bias-strong-bull";
+          } else if (biasLower.indexOf("bull") !== -1) {
+            biasClass = "bias-bull";
+          } else if (biasLower.indexOf("strong") !== -1 && biasLower.indexOf("bear") !== -1) {
+            biasClass = "bias-strong-bear";
+          } else if (biasLower.indexOf("bear") !== -1) {
+            biasClass = "bias-bear";
+          }
+
+          var recClass = "";
+          if (recRaw.indexOf("STRONG BUY") !== -1) recClass = "rec-strong-buy";
+          else if (recRaw.indexOf("BUY") !== -1) recClass = "rec-buy";
+          else if (recRaw.indexOf("STRONG SELL") !== -1) recClass = "rec-strong-sell";
+          else if (recRaw.indexOf("SELL") !== -1) recClass = "rec-sell";
+
+          var scoreClass = score >= 9 ? "score-strong" : "";
+          var posClass =
+            pos === "100%" || pos === 100 || pos === "1.0" ? "pos-100" : "";
+
+          var clientTime = row.time_client || row.time || "";
+          var utcTime = row.time_utc || "";
+
+          tr.innerHTML =
+            "<td>" + clientTime + "</td>" +
+            "<td>" + utcTime + "</td>" +
+            "<td>" + sessKey.toUpperCase() + "</td>" +
+            "<td>" + (row.timeframe || timeframe) + "</td>" +
+            "<td>" + (row.hora_ruler || row.hora_lord || "") + "</td>" +
+            "<td class=\"" + biasClass + "\">" + biasRaw + "</td>" +
+            "<td class=\"" + recClass + "\">" + (row.trade_recommendation || "") + "</td>" +
+            "<td class=\"" + scoreClass + "\">" + (isFinite(score) ? score.toFixed(2) : "") + "</td>" +
+            "<td class=\"" + posClass + "\">" + pos + "</td>";
+
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    function buildSummary(data, timeframe) {
+      var summaryRow = document.getElementById("summaryRow");
+      if (!summaryRow) return;
+
+      var stats = {};
+      var sessionsObj = data && data.sessions ? data.sessions : {};
+      var sessionKeys = Object.keys(sessionsObj);
+
+      sessionKeys.forEach(function (sessKey) {
+        if (!stats[sessKey]) {
+          stats[sessKey] = {
+            buy: 0,
+            strongBuy: 0,
+            sell: 0,
+            strongSell: 0,
+            total: 0
+          };
+        }
+        var rows = sessionsObj[sessKey] || [];
+        rows.forEach(function (row) {
+          var rec = (row.trade_recommendation || "").toUpperCase();
+          stats[sessKey].total++;
+          if (rec.indexOf("STRONG BUY") !== -1) stats[sessKey].strongBuy++;
+          else if (rec.indexOf("BUY") !== -1) stats[sessKey].buy++;
+          else if (rec.indexOf("STRONG SELL") !== -1) stats[sessKey].strongSell++;
+          else if (rec.indexOf("SELL") !== -1) stats[sessKey].sell++;
+        });
+      });
+
+      var sessions = Object.keys(stats);
+      if (!sessions.length) {
+        var pill = document.createElement("span");
+        pill.className = "summary-pill";
+        pill.textContent = "No rows for selected filters.";
+        summaryRow.appendChild(pill);
+        return;
+      }
+
+      sessions.forEach(function (sess) {
+        var s = stats[sess];
+        var pill = document.createElement("span");
+        pill.className = "summary-pill";
+        pill.textContent =
+          sess.toUpperCase() + " · TF=" + timeframe +
+          " · SB:" + s.strongBuy +
+          " B:" + s.buy +
+          " S:" + s.sell +
+          " SS:" + s.strongSell +
+          " · n=" + s.total;
+        summaryRow.appendChild(pill);
+      });
+    }
+  </script>
+</body>
+</html>

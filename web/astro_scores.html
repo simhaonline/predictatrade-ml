@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Astrological Scores & Planetary Strength</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-elevated: #0b1020;
+      --bg-elevated-soft: #101426;
+      --accent: #facc15;
+      --accent-soft: rgba(250, 204, 21, 0.1);
+      --accent-strong: #fbbf24;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.35);
+      --danger: #f97373;
+      --danger-soft: rgba(248, 113, 113, 0.12);
+      --danger-strong: #ef4444;
+      --retro: #60a5fa;
+      --retro-soft: rgba(96, 165, 250, 0.18);
+      --good: #4ade80;
+      --good-soft: rgba(74, 222, 128, 0.16);
+      --scroll-track: rgba(15, 23, 42, 0.8);
+      --scroll-thumb: rgba(148, 163, 184, 0.8);
+      --chip-bg: rgba(15, 23, 42, 0.8);
+      --chip-border: rgba(148, 163, 184, 0.4);
+      --chip-text: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 56%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 1.75rem 1.5rem;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1440px;
+      max-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at top left, #111827 0, #020617 58%);
+      border-radius: 28px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow:
+        0 24px 80px rgba(15, 23, 42, 0.9),
+        0 0 0 1px rgba(15, 23, 42, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(52, 211, 153, 0.2), transparent 46%),
+        radial-gradient(circle at 100% 0, rgba(59, 130, 246, 0.26), transparent 45%),
+        radial-gradient(circle at 0 100%, rgba(234, 179, 8, 0.26), transparent 40%);
+      mix-blend-mode: soft-light;
+      opacity: 0.75;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-inner {
+      position: relative;
+      z-index: 1;
+      padding: 1.4rem 1.6rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.3rem;
+      height: 100%;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.85);
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .spark {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #facc15 0, #f97316 40%, #7c3aed 100%);
+      box-shadow:
+        0 0 12px rgba(250, 204, 21, 0.8),
+        0 0 40px rgba(96, 165, 250, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .spark::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: inherit;
+      border: 1.5px solid rgba(248, 250, 252, 0.65);
+      opacity: 0.9;
+    }
+
+    .title-text {
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+      text-shadow: 0 0 18px rgba(15, 23, 42, 0.9);
+    }
+
+    .subtitle {
+      font-size: 0.77rem;
+      color: var(--muted);
+      max-width: 620px;
+      line-height: 1.5;
+    }
+
+    .subtitle strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .subtitle span {
+      opacity: 0.9;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.35rem;
+    }
+
+    .status-pill {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+        Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.7rem;
+      border-radius: 999px;
+      padding: 0.22rem 0.85rem;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), rgba(0, 0, 0, 0.8));
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .status-pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.9);
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.8);
+    }
+
+    .status-pill-label {
+      opacity: 0.85;
+    }
+
+    .status-pill-code {
+      opacity: 0.9;
+    }
+
+    .download-link {
+      font-size: 0.74rem;
+      color: #e5e7eb;
+      opacity: 0.8;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.7);
+      padding-bottom: 1px;
+    }
+
+    .download-link:hover {
+      opacity: 1;
+    }
+
+    .control-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      background: radial-gradient(circle at 0 0, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.96));
+      padding: 0.9rem 1.1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(30, 64, 175, 0.8);
+      box-shadow:
+        0 16px 40px rgba(15, 23, 42, 0.88),
+        0 0 0 1px rgba(15, 23, 42, 0.95),
+        0 0 22px rgba(37, 99, 235, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .control-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 5% 0, rgba(56, 189, 248, 0.16), transparent 50%),
+        radial-gradient(circle at 95% 100%, rgba(250, 204, 21, 0.2), transparent 55%);
+      opacity: 0.8;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .control-panel-inner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+
+    .filters-left {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.12rem;
+      min-width: 160px;
+    }
+
+    .field-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(156, 163, 175, 0.95);
+      font-weight: 500;
+    }
+
+    .field-input,
+    .field-select {
+      background: rgba(15, 23, 42, 0.92);
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      color: #e5e7eb;
+      font-size: 0.78rem;
+      padding: 0.46rem 0.75rem;
+      min-width: 0;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .field-input::placeholder {
+      color: rgba(148, 163, 184, 0.65);
+    }
+
+    .field-input:focus,
+    .field-select:focus {
+      border-color: rgba(129, 140, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.7);
+    }
+
+    .select-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .select-wrapper::after {
+      content: "▾";
+      position: absolute;
+      right: 10px;
+      font-size: 0.65rem;
+      color: rgba(148, 163, 184, 0.9);
+      pointer-events: none;
+    }
+
+    .tz-field {
+      min-width: 230px;
+    }
+
+    .controls-right {
+      display: flex;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+
+    .status-banner {
+      min-width: 200px;
+      max-width: 280px;
+      padding: 0.55rem 0.75rem;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .status-banner-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .status-banner-value {
+      font-size: 0.72rem;
+      color: rgba(229, 231, 235, 0.95);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-banner-value.ok {
+      color: var(--good);
+    }
+
+    .status-banner-value.error {
+      color: var(--danger-strong);
+    }
+
+    .load-button {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 0.65rem 1.3rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #111827;
+      background: radial-gradient(circle at 0 0, #fde047, #fbbf24);
+      box-shadow:
+        0 12px 35px rgba(250, 204, 21, 0.5),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      position: relative;
+      overflow: hidden;
+      min-width: 150px;
+      justify-content: center;
+    }
+
+    .load-button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.6), transparent 60%);
+      opacity: 0;
+      transform: translateX(-100%);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .load-button:hover::before {
+      opacity: 0.7;
+      transform: translateX(20%);
+    }
+
+    .load-button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .load-button-icon {
+      font-size: 0.8rem;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      gap: 0.8rem;
+    }
+
+    .summary-row {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 0.5rem;
+      padding-bottom: 0.1rem;
+      margin-bottom: 0.25rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scroll-thumb) transparent;
+    }
+
+    .summary-row::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .summary-row::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .summary-row::-webkit-scrollbar-thumb {
+      background: var(--scroll-thumb);
+      border-radius: 999px;
+    }
+
+    .summary-pill {
+      font-size: 0.72rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.95);
+      color: rgba(229, 231, 235, 0.95);
+      white-space: nowrap;
+    }
+
+    .summary-pill strong {
+      color: var(--accent-strong);
+      font-weight: 600;
+    }
+
+    .table-container {
+      flex: 1;
+      background: radial-gradient(circle at 0 0, rgba(20, 33, 70, 0.85), rgba(15, 23, 42, 0.96));
+      border-radius: 16px;
+      border: 1px solid rgba(30, 64, 175, 0.8);
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 23, 42, 0.95),
+        0 18px 48px rgba(15, 23, 42, 0.9);
+      padding: 0.9rem 1rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .table-wrapper {
+      flex: 1;
+      overflow: auto;
+      border-radius: 10px;
+      background: radial-gradient(circle at 0 0, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.97));
+      border: 1px solid rgba(31, 41, 55, 0.98);
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.95);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+      font-size: 0.74rem;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      background: linear-gradient(to bottom, #020617, #020617);
+      box-shadow:
+        0 1px 0 rgba(15, 23, 42, 0.95),
+        0 18px 40px rgba(15, 23, 42, 0.95);
+      z-index: 1;
+    }
+
+    th,
+    td {
+      padding: 0.4rem 0.55rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(30, 64, 175, 0.6);
+      white-space: nowrap;
+    }
+
+    th {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.65rem;
+      color: rgba(148, 163, 184, 0.9);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      background: linear-gradient(to bottom, #020617, #020617);
+    }
+
+    th.sticky-first {
+      left: 0;
+      z-index: 2;
+    }
+
+    td {
+      font-size: 0.74rem;
+      color: rgba(229, 231, 235, 0.97);
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(2, 6, 23, 0.96);
+    }
+
+    tbody tr:hover {
+      background: rgba(30, 64, 175, 0.52);
+    }
+
+    td:first-child,
+    th:first-child {
+      position: sticky;
+      left: 0;
+      background: inherit;
+      box-shadow: 1px 0 0 rgba(15, 23, 42, 0.95);
+    }
+
+    .score-strong {
+      color: var(--good);
+      font-weight: 600;
+      text-shadow: 0 0 16px rgba(22, 163, 74, 0.9);
+    }
+
+    .score-main {
+      color: var(--accent-strong);
+      font-weight: 600;
+      text-shadow: 0 0 16px rgba(234, 179, 8, 0.9);
+    }
+
+    .contam-high {
+      color: var(--danger-strong);
+      font-weight: 600;
+      background: radial-gradient(circle at center, rgba(248, 113, 113, 0.22), transparent 55%);
+    }
+
+    .contam-low {
+      color: rgba(248, 250, 252, 0.95);
+      opacity: 0.9;
+    }
+
+    .retro-flag {
+      color: var(--retro);
+      font-weight: 600;
+      text-shadow: 0 0 16px rgba(96, 165, 250, 0.95);
+    }
+
+    .footer-note {
+      font-size: 0.68rem;
+      color: rgba(148, 163, 184, 0.9);
+      margin-top: 0.3rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .footer-note span {
+      opacity: 0.9;
+    }
+
+    @media (max-width: 960px) {
+      body {
+        padding: 1rem;
+      }
+
+      .app-inner {
+        padding: 1.1rem;
+      }
+
+      .control-panel {
+        padding: 0.8rem;
+      }
+
+      .control-panel-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls-right {
+        justify-content: space-between;
+      }
+
+      .status-banner {
+        max-width: none;
+        flex: 1;
+      }
+
+      .load-button {
+        min-width: 0;
+        width: 140px;
+      }
+
+      .subtitle {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app-shell {
+        border-radius: 18px;
+      }
+
+      .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-right {
+        align-items: flex-start;
+      }
+
+      .filters-left {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .field-group {
+        width: 100%;
+      }
+
+      .tz-field {
+        min-width: 0;
+      }
+
+      .table-container {
+        padding: 0.75rem;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app-inner">
+      <header class="app-header">
+        <div class="title-block">
+          <div class="title-row">
+            <div class="spark"></div>
+            <div class="title-text">Astrological Scores &amp; Planetary Strength</div>
+          </div>
+          <div class="subtitle">
+            <span>Multi-metric astrological scoring per session &amp; timeframe • </span>
+            <strong>gold score, nakshatra, planetary strength, contamination &amp; emotional indices</strong>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="status-pill">
+            <span class="status-pill-dot"></span>
+            <span class="status-pill-label">Status</span>
+            <span class="status-pill-code" id="statusText">Awaiting command…</span>
+          </div>
+          <a id="downloadCsv" href="#" class="download-link" target="_blank" rel="noopener noreferrer">
+            Scores CSV
+          </a>
+        </div>
+      </header>
+
+      <section class="control-panel">
+        <div class="control-panel-inner">
+          <div class="filters-left">
+            <div class="field-group">
+              <label class="field-label" for="dateInput">Date</label>
+              <input id="dateInput" type="date" class="field-input" />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="sessionSelect">Session</label>
+              <div class="select-wrapper">
+                <select id="sessionSelect" class="field-select">
+                  <option value="all">All Sessions</option>
+                  <option value="sydney">Sydney</option>
+                  <option value="asia">Asia</option>
+                  <option value="london">London</option>
+                  <option value="newyork">New York</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="tfSelect">Timeframe</label>
+              <div class="select-wrapper">
+                <select id="tfSelect" class="field-select">
+                  <option value="1">M1 (1m)</option>
+                  <option value="5">M5 (5m)</option>
+                  <option value="15">M15 (15m)</option>				  
+                  <option value="30">M30 (30m)</option>				  
+                  <option value="60">H1 (1h)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group tz-field">
+              <label class="field-label" for="clientTzInput">Client TZ (MT5)</label>
+              <input
+                id="clientTzInput"
+                type="text"
+                class="field-input"
+                placeholder="e.g. Etc/GMT-2, Europe/London"
+              />
+            </div>
+          </div>
+
+          <div class="controls-right">
+            <div class="status-banner">
+              <div class="status-banner-label">API Response</div>
+              <div id="apiStatus" class="status-banner-value">
+                Awaiting command…
+              </div>
+            </div>
+            <button id="loadBtn" class="load-button">
+              <span class="load-button-icon">⟳</span>
+              <span>Load Scores</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <main class="main-content">
+        <div id="summaryRow" class="summary-row"></div>
+
+        <div class="table-container">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time (UTC)</th>
+                  <th class="sticky-first">Time (Client)</th>
+                  <th>Session</th>
+                  <th>TF</th>
+                  <th>Hora Ruler</th>
+                  <th>Main Score (Gold)</th>
+                  <th>Nakshatra Score</th>
+                  <th>Planetary Strength</th>
+                  <th>Contamination</th>
+                  <th>Retrograde</th>
+                  <th>Fear Avg</th>
+                  <th>Saturn Fear</th>
+                  <th>Emotional Tension</th>
+                </tr>
+              </thead>
+              <tbody id="scoresBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          <span>Scores are generated per session/timeframe from astro model outputs and market regime overlays.</span>
+          <span>Higher contamination &amp; emotional indices suggest elevated risk; use with your own risk management framework.</span>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function toISODateInput(d) {
+      return d.toISOString().slice(0, 10);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("dateInput").value = toISODateInput(new Date());
+      document.getElementById("loadBtn").addEventListener("click", loadScores);
+      loadScores();
+    });
+
+async function loadScores() {
+  var date = document.getElementById("dateInput").value;
+  var session = document.getElementById("sessionSelect").value;
+  var tf = document.getElementById("tfSelect").value;
+  var clientTz = document.getElementById("clientTzInput").value || "";
+
+  var statusEl = document.getElementById("statusText");
+  var apiStatus = document.getElementById("apiStatus");
+  var tbody = document.getElementById("scoresBody");
+  var summaryRow = document.getElementById("summaryRow");
+
+  statusEl.textContent = "Loading…";
+  apiStatus.textContent = "Requesting scores…";
+  apiStatus.classList.remove("ok", "error");
+  statusEl.classList.remove("ok", "error");
+
+  tbody.innerHTML = "";
+  summaryRow.innerHTML = "";
+
+  try {
+    // Build query string only with non-empty params
+    var params = [];
+    if (session) {
+      params.push("session=" + encodeURIComponent(session));
+    }
+    if (clientTz) {
+      params.push("client_tz=" + encodeURIComponent(clientTz));
+    }
+    if (tf) {
+      params.push("timeframe=" + encodeURIComponent(tf));
+    }
+
+    var query = params.length ? "?" + params.join("&") : "";
+    var url = "/api/reports/" + date + query;
+
+    console.log("Requesting:", url);
+
+    var res = await fetch(url);
+    var bodyText = await res.text();
+    var errorMsg = "";
+
+    try {
+      var parsed = JSON.parse(bodyText);
+      if (parsed && parsed.detail) {
+        errorMsg = String(parsed.detail);
+      }
+    } catch (e) {
+      if (bodyText && bodyText.trim()) {
+        errorMsg = bodyText.trim();
+      }
+    }
+
+    if (!res.ok) {
+      throw new Error("HTTP " + res.status + (errorMsg ? " – " + errorMsg : ""));
+    }
+
+    var data = bodyText ? JSON.parse(bodyText) : {};
+
+    buildScoreRows(data, tf);
+    buildSummary(data, tf);
+
+    var totalRows = Object.values(data.sessions || {}).reduce(function (sum, rows) {
+      return sum + rows.length;
+    }, 0);
+
+    var utcNow = new Date().toISOString();
+    var clientNow = new Date().toLocaleString();
+
+    statusEl.textContent = "OK";
+    statusEl.classList.add("ok");
+
+    apiStatus.textContent =
+      "[OK] " + data.date + " • TF=" + tf + " • " +
+      "UTC " + utcNow + " • Client " + clientNow + " • Rows " + totalRows;
+    apiStatus.classList.add("ok");
+
+    // CSV URL: same conditional params
+    var csvParams = [];
+    if (session) csvParams.push("session=" + encodeURIComponent(session));
+    if (clientTz) csvParams.push("client_tz=" + encodeURIComponent(clientTz));
+    if (tf) csvParams.push("timeframe=" + encodeURIComponent(tf));
+    var csvQuery = csvParams.length ? "?" + csvParams.join("&") : "";
+
+    var csvUrl = "/api/reports/" + date + "/csv" + csvQuery;
+    document.getElementById("downloadCsv").href = csvUrl;
+  } catch (err) {
+    console.error("loadScores error:", err);
+    statusEl.textContent = "Error";
+    statusEl.classList.add("error");
+    apiStatus.textContent = "Error loading scores: " + (err.message || err);
+    apiStatus.classList.add("error");
+  }
+}
+
+
+    function buildScoreRows(data, timeframe) {
+      const tbody = document.getElementById("scoresBody");
+
+      for (const [sessKey, rows] of Object.entries(data.sessions || {})) {
+        for (const row of rows) {
+          const tr = document.createElement("tr");
+
+          const mainScore = parseFloat(
+            row.gold_signal_score != null
+              ? row.gold_signal_score
+              : (row.base_score != null ? row.base_score : 0)
+          );
+          const nakScore = parseFloat(
+            row.nakshatra_bullish_score != null
+              ? row.nakshatra_bullish_score
+              : (row.nakshatra_score != null ? row.nakshatra_score : 0)
+          );
+          const planet = parseFloat(
+            row.planetary_strength_score != null
+              ? row.planetary_strength_score
+              : (row.planetary_strength != null ? row.planetary_strength : 0)
+          );
+          const contam = parseFloat(
+            row.contamination_index != null
+              ? row.contamination_index
+              : (row.contamination != null ? row.contamination : 0)
+          );
+          const retro = parseInt(
+            row.retrograde_count != null
+              ? row.retrograde_count
+              : (row.retrograde_total != null ? row.retrograde_total : 0),
+            10
+          );
+          const fear = parseFloat(
+            row.average_fear_index != null
+              ? row.average_fear_index
+              : (row.fear_index != null ? row.fear_index : 0)
+          );
+          const satFear = parseFloat(
+            row.saturn_fear_index != null ? row.saturn_fear_index : 0
+          );
+          const emo = parseFloat(
+            row.emotional_tension_index != null
+              ? row.emotional_tension_index
+              : (row.emotional_tension != null
+                ? row.emotional_tension
+                : 0)
+          );
+
+          const mainCls =
+            mainScore >= 9 ? "score-strong" :
+            mainScore >= 7 ? "score-main" : "";
+
+          const contamCls =
+            contam >= 7 ? "contam-high" :
+            contam > 0 ? "contam-low" : "";
+
+          const retroCls = retro >= 2 ? "retro-flag" : "";
+
+          const clientTime = row.time_client || row.time || "";
+
+          const utcTime =
+            row.time_utc  ||
+            row.utc_time  ||
+            row.time_gmt  ||
+            row.time_utc_str ||
+            ""; 
+
+          tr.innerHTML = `
+            <td>${utcTime}</td>
+            <td>${clientTime}</td>
+            <td>${sessKey.toUpperCase()}</td>
+            <td>${row.timeframe || timeframe}</td>
+            <td>${row.hora_ruler || row.hora_lord || ""}</td>
+            <td class="${mainCls}">${isFinite(mainScore) ? mainScore.toFixed(2) : ""}</td>
+            <td>${isFinite(nakScore) ? nakScore.toFixed(2) : ""}</td>
+            <td>${isFinite(planet) ? planet.toFixed(2) : ""}</td>
+            <td class="${contamCls}">${isFinite(contam) ? contam.toFixed(2) : ""}</td>
+            <td class="${retroCls}">${Number.isFinite(retro) && retro !== 0 ? retro : ""}</td>
+            <td>${isFinite(fear) ? fear.toFixed(2) : ""}</td>
+            <td>${isFinite(satFear) ? satFear.toFixed(2) : ""}</td>
+            <td>${isFinite(emo) ? emo.toFixed(2) : ""}</td>
+          `;
+
+          tbody.appendChild(tr);
+        }
+      }
+    }
+
+    function buildSummary(data, timeframe) {
+      const summaryRow = document.getElementById("summaryRow");
+
+      let total = 0;
+      let strongMain = 0;
+      let highContam = 0;
+
+      const perSession = {}; // { session: { total, strongMain, highContam } }
+
+      for (const [sessKey, rows] of Object.entries(data.sessions || {})) {
+        if (!perSession[sessKey]) {
+          perSession[sessKey] = { total: 0, strongMain: 0, highContam: 0 };
+        }
+        for (const row of rows) {
+          const mainScore = parseFloat(
+            row.gold_signal_score != null
+              ? row.gold_signal_score
+              : (row.base_score != null ? row.base_score : 0)
+          );
+          const contam = parseFloat(
+            row.contamination_index != null
+              ? row.contamination_index
+              : (row.contamination != null ? row.contamination : 0)
+          );
+
+          total++;
+          perSession[sessKey].total++;
+
+          if (mainScore >= 9) {
+            strongMain++;
+            perSession[sessKey].strongMain++;
+          }
+          if (contam >= 7) {
+            highContam++;
+            perSession[sessKey].highContam++;
+          }
+        }
+      }
+
+      const sessions = Object.keys(perSession);
+      if (!sessions.length) {
+        const pill = document.createElement("span");
+        pill.className = "summary-pill";
+        pill.textContent = "No rows for selected filters.";
+        summaryRow.appendChild(pill);
+        return;
+      }
+
+      for (const sess of sessions) {
+        const s = perSession[sess];
+        const pill = document.createElement("span");
+        pill.className = "summary-pill";
+        pill.textContent =
+          `${sess.toUpperCase()} · TF=${timeframe} · ` +
+          `Strong main (≥9): ${s.strongMain} · High contamination (≥7): ${s.highContam} · n=${s.total}`;
+        summaryRow.appendChild(pill);
+      }
+
+      const globalPill = document.createElement("span");
+      globalPill.className = "summary-pill";
+      globalPill.textContent =
+        `All sessions · TF=${timeframe} · Strong main: ${strongMain} · High contamination: ${highContam} · total=${total}`;
+      summaryRow.appendChild(globalPill);
+    }
+  </script>
+</body>
+</html>

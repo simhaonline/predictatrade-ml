@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nakshatra Transitions & Micro-Rationale</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bg: #050812;
+      --bg-elevated: #060a16;
+      --border: rgba(255, 255, 255, 0.06);
+      --accent: #4fd1c5;
+      --accent-strong: #63f5e7;
+      --text: #e5f0ff;
+      --text-soft: #9fa9c6;
+      --text-muted: #4b5269;
+      --table-header-bg: rgba(15, 23, 42, 0.9);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", sans-serif;
+      background: radial-gradient(circle at top, #1a202c 0, #050812 60%, #000 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1300px;
+      padding: 2rem;
+      margin-top: 1.5rem;
+      background: rgba(10, 13, 25, 0.75);
+      border-radius: 1.4rem;
+      border: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.3rem;
+      background: linear-gradient(90deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin-bottom: 1.8rem;
+      font-size: 0.95rem;
+      color: var(--text-soft);
+    }
+
+    /* --- Form Controls --- */
+    .controls-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr) 160px;
+      gap: 1rem;
+      margin-bottom: 1.6rem;
+    }
+
+    @media (max-width: 900px) {
+      .controls-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .field-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .input-shell {
+      background: rgba(15, 18, 30, 0.85);
+      border: 1px solid rgba(100, 140, 180, 0.3);
+      padding: 0.5rem 0.7rem;
+      border-radius: 0.85rem;
+    }
+
+    input, select {
+      width: 100%;
+      font-size: 0.9rem;
+      background: transparent;
+      color: var(--text);
+      border: 0;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      border: none;
+      padding: 0.9rem 1rem;
+      border-radius: 0.9rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #000;
+      box-shadow: 0 4px 18px rgba(79, 209, 197, 0.5);
+      margin-top: 1.5rem;
+    }
+
+    /* Status Bar */
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .status-pill {
+      background: rgba(30, 40, 60, 0.85);
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 0.8rem;
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .status-pill.ok {
+      background: rgba(10, 80, 50, 0.8);
+      border-color: rgba(80, 200, 150, 0.4);
+    }
+
+    .status-pill.error {
+      background: rgba(100, 30, 30, 0.8);
+      border-color: rgba(200, 80, 80, 0.4);
+    }
+
+    /* Summary */
+    .summary-strip {
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 0.8rem;
+      border-radius: 0.9rem;
+      margin-bottom: 1.2rem;
+      background: rgba(15, 18, 26, 0.8);
+    }
+
+    .summary-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .summary-pill {
+      padding: 0.35rem 0.7rem;
+      border: 1px solid rgba(100, 200, 255, 0.25);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: rgba(20, 28, 38, 0.9);
+    }
+
+    /* Table */
+    .table-shell {
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 1rem;
+      overflow: hidden;
+      background: rgba(20, 26, 38, 0.9);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.82rem;
+    }
+
+    th {
+      background: var(--table-header-bg);
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      padding: 0.55rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(25, 32, 48, 0.92);
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(18, 24, 38, 0.9);
+    }
+
+    /* Column widths */
+    th:nth-child(1), td:nth-child(1),
+    th:nth-child(2), td:nth-child(2) { width: 85px; }
+
+    th:nth-child(3), td:nth-child(3) { width: 80px; }
+
+    th:nth-child(4), td:nth-child(4) { width: 60px; }
+
+    th:nth-child(5), td:nth-child(5),
+    th:nth-child(6), td:nth-child(6),
+    th:nth-child(7), td:nth-child(7),
+    th:nth-child(8), td:nth-child(8),
+    th:nth-child(9), td:nth-child(9),
+    th:nth-child(10), td:nth-child(10),
+    th:nth-child(11), td:nth-child(11) {
+      width: 90px;
+    }
+
+    th:nth-child(12), td:nth-child(12) {
+      width: auto;
+      white-space: normal;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+
+    <h1>Nakshatra Transitions & Micro-Rationale</h1>
+    <p class="subtitle">Vedic nakshatra & pada transitions with session-aware micro-rationale.</p>
+
+    <!-- CONTROLS -->
+    <div class="controls-row">
+
+      <div>
+        <div class="field-label">Date (UTC)</div>
+        <div class="input-shell"><input id="dateInput" type="date"></div>
+      </div>
+
+      <div>
+        <div class="field-label">Session</div>
+        <div class="input-shell">
+          <select id="sessionSelect">
+            <option value="all">All Sessions</option>
+            <option value="asia">Asia</option>
+            <option value="london">London</option>
+            <option value="ny">New York</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <div class="field-label">Timeframe</div>
+        <div class="input-shell">
+          <select id="tfSelect">
+            <option value="H1">H1</option>
+            <option value="H4">H4</option>
+            <option value="M30">M30</option>
+            <option value="M15">M15</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <div class="field-label">Client TZ</div>
+        <div class="input-shell"><input id="clientTzInput" type="text" placeholder="e.g. Asia/Dubai"></div>
+      </div>
+
+      <button class="btn-primary" id="loadBtn">⟳ Load</button>
+
+    </div>
+
+    <!-- STATUS -->
+    <div class="status-row">
+      <div id="status" class="status-pill">
+        <span class="glyph">⌛</span>
+        <span class="label">Awaiting command…</span>
+      </div>
+
+      <a id="downloadCsv" class="btn-primary" href="#" target="_blank" style="text-decoration:none;padding:0.7rem 1rem;font-size:0.8rem;">
+        ⬇ CSV
+      </a>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-strip">
+      <div style="font-size:0.76rem;color:var(--text-soft);">SESSION BIAS SNAPSHOT</div>
+      <div id="summaryRow" class="summary-tags"></div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-shell">
+      <table>
+        <thead>
+          <tr>
+            <th>TIME (UTC)</th>
+            <th>TIME (CLIENT)</th>
+            <th>SESSION</th>
+            <th>TF</th>
+            <th>NAKSHTRA</th>
+            <th>PADA</th>
+            <th>RULER</th>
+            <th>QUALITY</th>
+            <th>BIAS</th>
+            <th>SCORE</th>
+            <th>KEY PLANET</th>
+            <th>MICRO-RATIONALE</th>
+          </tr>
+        </thead>
+
+        <tbody id="nakBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- JS -->
+  <script src="/web/nakshatra_rationale.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ultra-Detailed Execution Matrix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Complete Vedic + Planetary + Emotional confluence matrix for precision execution"
+  />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #020617;
+      --border: #1f2933;
+      --border-soft: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --gold: #fbbf24;
+      --accent: #38bdf8;
+      --green: #22c55e;
+      --red: #f97373;
+      --radius: 14px;
+      --shadow: 0 20px 40px rgba(0,0,0,0.45);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 5% 0%, #1e293b 0%, transparent 55%),
+        radial-gradient(circle at 100% 100%, #0f172a 0%, #020617 65%);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1800px;
+      background: rgba(15,23,42,0.98);
+      border-radius: 20px;
+      padding: 2.4rem 2.6rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      margin: 0 0 0.5rem;
+      text-align: center;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--gold), #ffffff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    /* Controls */
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.1rem;
+      margin-bottom: 1.2rem;
+      padding: 1.1rem 1.3rem;
+      border-radius: 16px;
+      background: radial-gradient(circle at 10% 0%, rgba(56,189,248,0.08), transparent 60%);
+      border: 1px solid var(--border-soft);
+    }
+
+    label span {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #020617;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(251,191,36,0.2);
+    }
+
+    .controls-right {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      border-radius: 999px;
+      border: none;
+      background: var(--gold);
+      color: #020617;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: 0.03em;
+    }
+    button:hover { filter: brightness(1.05); }
+
+    a#csvLink {
+      padding: 0.8rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+    a#csvLink:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* Status + summary */
+
+    #status {
+      margin: 0 0 0.8rem;
+      padding: 0.85rem 1.1rem;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      border-left: 4px solid #eab308;
+      background: rgba(234,179,8,0.08);
+      color: var(--gold);
+    }
+    #status.ok {
+      border-left-color: var(--green);
+      color: var(--green);
+      background: rgba(34,197,94,0.08);
+    }
+    #status.error {
+      border-left-color: var(--red);
+      color: #fecaca;
+      background: rgba(248,113,113,0.08);
+    }
+
+    .summary-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-bottom: 0.6rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .summary-pill {
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #020617;
+    }
+
+    /* Table */
+
+    .table-wrapper {
+      margin-top: 0.4rem;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: auto;
+      background: #020617;
+      max-height: calc(100vh - 270px);
+    }
+
+    table {
+      width: 100%;
+      min-width: 1700px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    th {
+      background: #020617;
+      padding: 0.75rem 0.7rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.7rem 0.7rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.86rem;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: rgba(148,163,184,0.08);
+    }
+
+    /* Sticky first two columns (Time client + UTC) */
+    th:nth-child(1),
+    td:nth-child(1) {
+      position: sticky;
+      left: 0;
+      z-index: 6;
+      background: #020617;
+    }
+    th:nth-child(2),
+    td:nth-child(2) {
+      position: sticky;
+      left: 140px; /* approx width of first column */
+      z-index: 6;
+      background: #020617;
+    }
+
+    th:nth-child(1), th:nth-child(2),
+    td:nth-child(1), td:nth-child(2) {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    /* Execution colouring */
+
+    .action-buy, .action-long {
+      color: var(--green);
+      font-weight: 600;
+    }
+    .action-sell, .action-short {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .trade-buy {
+      color: var(--green);
+    }
+    .trade-sell {
+      color: var(--red);
+    }
+
+    .score-high {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .nakshatra-strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .high-conviction {
+      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.22), rgba(15,23,42,0.95));
+    }
+
+    .pos-100 {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .contam-high {
+      color: var(--red);
+      font-weight: 600;
+    }
+    .contam-low {
+      color: var(--green);
+    }
+
+    .retro-flag {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        padding: 1.6rem 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ultra-Detailed Execution Matrix</h1>
+    <p class="subtitle">
+      Vedic + Planetary + Emotional confluence for precision entries • per-session, per-timeframe execution map
+    </p>
+
+    <div class="controls">
+      <label>
+        <span>Date</span>
+        <input type="date" id="dateInput">
+      </label>
+
+      <label>
+        <span>Session</span>
+        <select id="sessionSelect">
+          <option value="all">All Sessions</option>
+          <option value="sydney">Sydney</option>
+          <option value="asia">Asia (Tokyo)</option>
+          <option value="london">London</option>
+          <option value="newyork">New York</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Timeframe</span>
+        <select id="tfSelect">
+          <option value="M1">M1 (1m)</option>
+          <option value="M5">M5 (5m)</option>
+          <option value="M15">M15 (15m)</option>
+          <option value="M30">M30 (30m)</option>
+          <option value="H1" selected>H1 (1h)</option>
+          <option value="H4">H4 (4h)</option>
+          <option value="D1">D1 (Daily)</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Client Timezone (MT5)</span>
+        <input type="text" id="clientTzInput" placeholder="e.g. Etc/GMT-2 or Europe/London">
+      </label>
+
+      <div class="controls-right">
+        <button id="loadBtn">Load Matrix</button>
+        <a id="csvLink" href="#" target="_blank">📄 Execution CSV</a>
+      </div>
+    </div>
+
+    <p id="status">Awaiting command…</p>
+    <div class="summary-row" id="summaryRow"></div>
+
+    <div class="table-wrapper">
+      <table id="matrixTable">
+        <thead>
+          <tr>
+            <th>Time (Client)</th>
+            <th>Time (UTC)</th>
+            <th>Session</th>
+            <th>TF</th>
+            <th>Hora Ruler</th>
+            <th>Hora Effect</th>
+            <th>Score</th>
+            <th>Trade</th>
+            <th>Action</th>
+            <th>Position %</th>
+            <th>Nakshatra Pada</th>
+            <th>Nakshatra Score</th>
+            <th>Retrograde Count</th>
+            <th>Contamination</th>
+            <th>Fear Avg</th>
+            <th>Saturn Fear</th>
+            <th>Emotional Tension</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function toISODateInput(d){return d.toISOString().slice(0,10);}
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("dateInput").value = toISODateInput(new Date());
+      document.getElementById("loadBtn").addEventListener("click", loadMatrix);
+      loadMatrix();
+    });
+
+    async function loadMatrix(){
+      const date = document.getElementById("dateInput").value;
+      const session = document.getElementById("sessionSelect").value;
+      const clientTz = document.getElementById("clientTzInput").value || "";
+      const tf = document.getElementById("tfSelect").value;
+      const status = document.getElementById("status");
+      const tbody = document.querySelector("#matrixTable tbody");
+      const summaryRow = document.getElementById("summaryRow");
+
+      tbody.innerHTML = "";
+      summaryRow.innerHTML = "";
+      status.textContent = "Loading execution matrix…";
+      status.classList.remove("ok", "error");
+
+      try{
+        const url =
+          `/api/reports/${date}` +
+          `?session=${encodeURIComponent(session)}` +
+          `&client_tz=${encodeURIComponent(clientTz)}` +
+          `&timeframe=${encodeURIComponent(tf)}`;
+
+        const res = await fetch(url);
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        // CSV link
+        document.getElementById("csvLink").href =
+          `/api/reports/${date}/csv` +
+          `?session=${encodeURIComponent(session)}` +
+          `&client_tz=${encodeURIComponent(clientTz)}` +
+          `&timeframe=${encodeURIComponent(tf)}`;
+
+        let count = 0;
+        const stats = {}; // per session trade stats
+
+        for(const [sessKey, rows] of Object.entries(data.sessions || {})){
+          if(!stats[sessKey]){
+            stats[sessKey] = {
+              total: 0,
+              buys: 0,
+              sells: 0,
+              highConviction: 0
+            };
+          }
+
+          for(const row of rows){
+            count++;
+            stats[sessKey].total++;
+
+            const tr = document.createElement("tr");
+
+            const score = parseFloat(row.gold_signal_score ?? row.base_score ?? 0);
+            const nakshatraScore = parseFloat(row.nakshatra_bullish_score ?? row.nakshatra_score ?? 0);
+            const retrograde = parseInt(row.retrograde_count ?? 0);
+            const fear = parseFloat(row.average_fear_index ?? 0);
+            const contam = parseFloat(row.contamination_index ?? row.contamination ?? 0);
+
+            const tradeText = (row.trade_recommendation || "").toUpperCase();
+            const actionText = (row.action || "").toUpperCase();
+
+            const isBuy =
+              actionText.includes("BUY") ||
+              tradeText.includes("BUY") ||
+              actionText.includes("LONG");
+            const isSell =
+              actionText.includes("SELL") ||
+              tradeText.includes("SELL") ||
+              actionText.includes("SHORT");
+
+            if(isBuy) stats[sessKey].buys++;
+            if(isSell) stats[sessKey].sells++;
+
+            // High conviction: high score + high nakshatra + low retrograde + low fear
+            const highConviction = score >= 8 && nakshatraScore >= 7 && retrograde <= 1 && fear <= 3;
+            if(highConviction){
+              tr.classList.add("high-conviction");
+              stats[sessKey].highConviction++;
+            }
+
+            const scoreClass = score >= 8 ? "score-high" : "";
+            const nakClass = nakshatraScore >= 8 ? "nakshatra-strong" : "";
+            const pos = row.position_size_percentage ?? "";
+            const posClass =
+              pos === "100%" || pos === 100 || pos === "1.0" ? "pos-100" : "";
+
+            const contamClass =
+              contam >= 7 ? "contam-high" : contam > 0 ? "contam-low" : "";
+
+            const retroClass = retrograde >= 2 ? "retro-flag" : "";
+
+            const actionClass = isBuy
+              ? "action-buy"
+              : isSell
+              ? "action-sell"
+              : "";
+
+            const tradeClass = tradeText.includes("BUY")
+              ? "trade-buy"
+              : tradeText.includes("SELL")
+              ? "trade-sell"
+              : "";
+
+            const clientTime = row.time_client || row.time || "";
+            const utcTime = row.time_utc || "";
+
+            tr.innerHTML = `
+              <td>${clientTime}</td>
+              <td>${utcTime}</td>
+              <td>${sessKey.toUpperCase()}</td>
+              <td>${row.timeframe || tf}</td>
+              <td>${row.hora_ruler || ""}</td>
+              <td>${row.hora_effect ?? ""}</td>
+              <td class="${scoreClass}">${isFinite(score) ? score.toFixed(2) : (row.gold_signal_score ?? row.base_score ?? "")}</td>
+              <td class="${tradeClass}">${row.trade_recommendation || ""}</td>
+              <td class="${actionClass}">${row.action || ""}</td>
+              <td class="${posClass}">${pos}</td>
+              <td>${row.nakshatra_pada || ""}</td>
+              <td class="${nakClass}">${isFinite(nakshatraScore) ? nakshatraScore.toFixed(2) : (row.nakshatra_bullish_score ?? row.nakshatra_score ?? "")}</td>
+              <td class="${retroClass}">${retrograde || ""}</td>
+              <td class="${contamClass}">${isFinite(contam) ? contam.toFixed(2) : (row.contamination_index ?? row.contamination ?? "")}</td>
+              <td>${isFinite(fear) ? fear.toFixed(2) : (row.average_fear_index ?? "")}</td>
+              <td>${row.saturn_fear_index ?? ""}</td>
+              <td>${row.emotional_tension_index ?? ""}</td>
+            `;
+            tbody.appendChild(tr);
+          }
+        }
+
+        // Session + timeframe summary
+        const sessions = Object.keys(stats);
+        if(!sessions.length){
+          const pill = document.createElement("span");
+          pill.className = "summary-pill";
+          pill.textContent = "No rows for selected filters.";
+          summaryRow.appendChild(pill);
+        }else{
+          for(const [sess, s] of Object.entries(stats)){
+            const pill = document.createElement("span");
+            pill.className = "summary-pill";
+            pill.textContent =
+              `${sess.toUpperCase()} · TF=${tf} · ` +
+              `Buys:${s.buys} · Sells:${s.sells} · High Conviction:${s.highConviction} · n=${s.total}`;
+            summaryRow.appendChild(pill);
+          }
+        }
+
+        const utcNow = new Date().toISOString();
+        const clientNow = new Date().toLocaleString();
+        status.textContent =
+          `[OK] ${data.date} • TF=${tf} • ` +
+          `UTC ${utcNow} • Client ${clientNow} • Rows ${count}`;
+        status.classList.add("ok");
+      }catch(err){
+        console.error(err);
+        status.textContent = `Error loading matrix: ${err.message}`;
+        status.classList.add("error");
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Astrological Gold Strategy Dashboard</title>
+  <meta name="description" content="Live astrological multi-session gold trading dashboard with execution matrix, scores and session-aware signals." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #020617;
+      --surface: #020617;
+      --panel: #020617;
+      --panel-alt: #020617;
+      --border: #1f2933;
+      --border-soft: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --gold: #fbbf24;
+      --accent: #38bdf8;
+      --red: #f97373;
+      --green: #22c55e;
+      --radius: 14px;
+      --shadow: 0 20px 40px rgba(0,0,0,0.45);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 5% 0%, #1e293b 0%, transparent 55%),
+        radial-gradient(circle at 100% 100%, #0f172a 0%, #020617 65%);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 1700px;
+      background: rgba(15,23,42,0.98);
+      border-radius: 20px;
+      padding: 2.4rem 2.6rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      text-align: center;
+      margin: 0 0 0.6rem;
+      background: linear-gradient(90deg, var(--gold), #ffffff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    /* LIVE TICKER */
+
+    .live-ticker {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      padding: 0.9rem 1.3rem;
+      margin-bottom: 1.6rem;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at 0 0, rgba(248,250,252,0.08), #020617 65%);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .live-symbol {
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .live-price {
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+    .live-change {
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+    }
+    .live-change.up {
+      color: var(--green);
+      border-color: rgba(34,197,94,0.4);
+      background: rgba(34,197,94,0.06);
+    }
+    .live-change.down {
+      color: #fecaca;
+      border-color: rgba(248,113,113,0.5);
+      background: rgba(248,113,113,0.06);
+    }
+    .live-provider {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+    .live-updated {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      text-align: right;
+    }
+
+    /* CONTROLS */
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 1.4rem;
+      padding: 1.1rem 1.3rem;
+      border-radius: 16px;
+      background: radial-gradient(circle at 10% 0%, rgba(56,189,248,0.08), transparent 60%);
+      border: 1px solid var(--border-soft);
+    }
+
+    label span {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #020617;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(251,191,36,0.2);
+    }
+
+    .controls-row-right {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      border-radius: 999px;
+      border: none;
+      background: var(--gold);
+      color: #020617;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: 0.03em;
+    }
+    button:hover { filter: brightness(1.05); }
+
+    a#downloadCsv {
+      padding: 0.8rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+    a#downloadCsv:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* STATUS */
+
+    #status {
+      margin: 0 0 1rem;
+      padding: 0.9rem 1.1rem;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      border-left: 4px solid #eab308;
+      background: rgba(234,179,8,0.08);
+      color: var(--gold);
+    }
+    #status.ok {
+      border-left-color: var(--green);
+      color: var(--green);
+      background: rgba(34,197,94,0.08);
+    }
+    #status.error {
+      border-left-color: var(--red);
+      color: #fecaca;
+      background: rgba(248,113,113,0.08);
+    }
+
+    /* TABLE */
+
+    .table-wrapper {
+      margin-top: 0.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #020617;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1150px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: #020617;
+      padding: 0.8rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    td {
+      padding: 0.7rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.86rem;
+      white-space: nowrap;
+    }
+
+    tr:hover {
+      background: rgba(148,163,184,0.08);
+    }
+
+    th:nth-child(1), th:nth-child(2),
+    td:nth-child(1), td:nth-child(2) {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* simple bias / rec colour hints */
+    .bias-bull { color: var(--green); }
+    .bias-strong-bull { color: var(--green); font-weight: 600; }
+    .bias-bear { color: var(--red); }
+    .bias-strong-bear { color: var(--red); font-weight: 600; }
+
+    .rec-buy, .rec-strong-buy { color: var(--green); font-weight: 600; }
+    .rec-sell, .rec-strong-sell { color: var(--red); font-weight: 600; }
+
+    .score-strong { color: var(--gold); font-weight: 700; }
+
+    .pos-100 {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .summary-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .summary-pill {
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #020617;
+    }
+
+    @media (max-width: 900px) {
+      #app {
+        padding: 1.6rem 1.2rem;
+      }
+      .live-ticker {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .live-updated {
+        align-items: flex-start;
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Astrological Gold Strategy & Execution Matrix</h1>
+    <p class="subtitle">Live XAUUSD feed • session-aware astrological signals • multi-timeframe execution view</p>
+
+    <!-- LIVE TICKER -->
+    <div class="live-ticker">
+      <div>
+        <div class="live-symbol">XAUUSD</div>
+        <div class="live-price" id="livePrice">–</div>
+      </div>
+      <div class="live-change" id="liveChange">waiting…</div>
+      <div class="live-provider" id="liveProvider">source: –</div>
+      <div class="live-updated">
+        <span>UTC: <span id="liveUtcTs">–</span></span>
+        <span>Client: <span id="liveClientTs">–</span></span>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+      <label>
+        <span>Date</span>
+        <input type="date" id="reportDate" />
+      </label>
+
+      <label>
+        <span>Session</span>
+        <select id="sessionSelect">
+          <option value="all">All Sessions</option>
+          <option value="sydney">Sydney</option>
+          <option value="asia">Asia (Tokyo)</option>
+          <option value="london">London</option>
+          <option value="newyork">New York</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Timeframe</span>
+        <select id="timeframeSelect">
+          <option value="M1">M1 (1m)</option>
+          <option value="M5">M5 (5m)</option>
+          <option value="M15">M15 (15m)</option>
+          <option value="M30">M30 (30m)</option>
+          <option value="H1" selected>H1 (1h)</option>
+          <option value="H4">H4 (4h)</option>
+          <option value="D1">D1 (Daily)</option>
+        </select>
+      </label>
+
+      <label>
+        <span>Client TZ (MT5)</span>
+        <input type="text" id="clientTzInput" placeholder="e.g. Etc/GMT-2, Europe/London" />
+      </label>
+
+      <div class="controls-row-right">
+        <button id="loadBtn">Load Report</button>
+        <a id="downloadCsv" href="#" target="_blank">📥 Download CSV</a>
+      </div>
+    </div>
+
+    <div id="status">The matrix awaits your command…</div>
+    <div class="summary-row" id="summaryRow"></div>
+
+    <div id="tableContainer" class="table-wrapper"></div>
+  </div>
+
+  <!-- App logic -->
+  <script src="app.js"></script>
+</body>
+</html>
