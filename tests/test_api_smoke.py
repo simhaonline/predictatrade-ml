@@ -21,6 +21,8 @@ def test_astro_now():
     assert "planets" in data
     assert "sessions" in data
     assert "fear_profile" in data
+    assert "saturn_retrograde_active" in data
+    assert "apocalypse_trigger" in data
 
 
 def test_reports_latest():

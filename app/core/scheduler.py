@@ -15,7 +15,7 @@ def get_latest_cached_report() -> dict | None:
 
 def _run_daily_report_job():
     global _last_daily_report
-    today = date.today().isoformat()
+    today = date.today()
     _last_daily_report = generate_multi_session_report(today)
 
 
@@ -25,7 +25,6 @@ def init_scheduler():
         return scheduler
 
     scheduler = AsyncIOScheduler(timezone="UTC")
-    # Run every 5 minutes just as example (you can change to hourly / per-session)
     scheduler.add_job(_run_daily_report_job, CronTrigger(minute="*/5"))
     scheduler.start()
     return scheduler
