@@ -16,7 +16,7 @@ def main(s: str | None = None):
     report = generate_multi_session_report(d)
 
     print(f"Signal distribution for {d.isoformat()}")
-    for session_name, rows in report.items():
+    for session_name, rows in report["sessions"].items():
         counts = Counter(row["trade_recommendation"] for row in rows)
         print(f"\nSession: {session_name}")
         for k in ["STRONG BUY", "BUY", "NEUTRAL", "SELL", "STRONG SELL"]:
